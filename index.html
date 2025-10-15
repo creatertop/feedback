@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airport Washroom Feedback</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Container styling */
+.country-code {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+}
+
+/* Label styling */
+.country-code label {
+    font-size: 14px;
+    color: #cfcfcf;
+    margin-bottom: 4px;
+}
+
+/* Dropdown (select box) styling */
+.country-code select {
+    background-color: #102542; /* dark blue tone */
+    color: #ffffff;
+    border: 1px solid #1f4068;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none; /* remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 18px;
+}
+
+/* Hover effect */
+.country-code select:hover {
+    background-color: #1a3a63;
+    border-color: #00bfff;
+}
+
+/* Focused dropdown */
+.country-code select:focus {
+    border-color: #00bfff;
+    box-shadow: 0 0 6px rgba(0, 191, 255, 0.4);
+}
+
+/* Dropdown options */
+.country-code select option {
+    background-color: #102542;
+    color: #ffffff;
+}
+
+        :root {
+            --bg-dark-blue: #0a2749;
+            --text-light: #ffffff;
+            --button-bg: rgba(255, 255, 255, 0.9);
+            --button-text: #0a2749;
+            --button-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark-blue);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .header-logo { max-height: 100px; }
+        .header-logo.gmr { max-height: 70px; }
+
+        .feedback-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            width: 100%;
+            text-align: center;
+            overflow-y: auto;
+        }
+        
+        .hidden { display: none !important; }
+
+        /* --- Rating Screen Styles --- */
+        #rating-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+        #rating-screen h1 { font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 700; }
+        .ratings-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: clamp(1rem, 4vw, 2.5rem);
+            margin-top: 2rem;
+        }
+        .rating-item {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: clamp(120px, 15vw, 180px);
+        }
+        .rating-item:hover { transform: scale(1.05); }
+        .rating-emoji-circle {
+            width: clamp(100px, 12vw, 150px);
+            height: clamp(100px, 12vw, 150px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(3rem, 6vw, 5rem);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 4px solid transparent;
+        }
+        .rating-item[data-rating="5"] .rating-emoji-circle { background-color: #2ecc71; }
+        .rating-item[data-rating="4"] .rating-emoji-circle { background-color: #87d37c; }
+        .rating-item[data-rating="3"] .rating-emoji-circle { background-color: #f1c40f; }
+        .rating-item[data-rating="2"] .rating-emoji-circle { background-color: #e67e22; }
+        .rating-item[data-rating="1"] .rating-emoji-circle { background-color: #e74c3c; }
+        
+        .rating-item.selected .rating-emoji-circle {
+            border-color: #3498db;
+            box-shadow: 0 0 25px #3498db;
+        }
+        .rating-label { font-size: clamp(1rem, 2.5vw, 1.5rem); font-weight: 600; }
+
+        /* --- Detailed Screens Common Styles --- */
+        .detailed-screen-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .detailed-screen-wrapper h2 { font-size: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 0.5rem; }
+        .detailed-screen-wrapper p { font-size: clamp(1rem, 2vw, 1.2rem); color: rgba(255, 255, 255, 0.7); margin-bottom: 2rem; }
+        .action-buttons { display: flex; justify-content: space-between; align-items: center; width: 100%; padding-top: 1rem; }
+        
+        .back-btn { /* Style for Go Back button on all detailed screens */
+            background: none;
+            border: 1px solid var(--text-light);
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .back-btn:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+        /* --- Detailed Feedback (Issues) --- */
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            flex-grow: 1;
+        }
+        .feedback-category h3 { font-size: 1.1rem; text-transform: uppercase; margin-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding-bottom: 0.5rem; text-align: left; }
+        .issue-btn {
+            width: 100%; background-color: rgba(255, 255, 255, 0.1); color: var(--text-light); border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600;
+            transition: all 0.2s ease; padding: 1rem; margin-bottom: 0.75rem;
+        }
+        .issue-btn.selected { background-color: #3498db; color: white; border-color: #3498db; }
+
+        /* --- Positive Feedback Screen --- */
+        .positive-options-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2rem; width: 100%; flex-grow: 1; }
+        .positive-btn {
+            background-color: rgba(255, 255, 255, 0.1); color: var(--text-light); border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 1.1rem;
+            transition: all 0.2s ease; padding: 2rem; font-weight: 600;
+            display: flex; flex-direction: column; align-items: center; gap: 1rem; min-width: 200px;
+        }
+        .positive-btn i { font-size: 2.5rem; }
+        .positive-btn.selected { background-color: #2ecc71; color: white; border-color: #2ecc71; }
+
+        /* --- Details Form Screen --- */
+        .details-form-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column for mobile */
+            gap: 2rem;
+            width: 100%;
+        }
+        /* Media query for larger screens */
+        @media (min-width: 900px) {
+            .details-form-grid {
+                grid-template-columns: repeat(6, 1fr); /* 6-column grid for precise layout */
+            }
+            .form-group.name, .form-group.email {
+                grid-column: span 3; /* Name and Email take half the width */
+            }
+            .form-group.gender, .form-group.country-code, .form-group.phone {
+                grid-column: span 2; /* Gender, Country, Phone take one-third width */
+            }
+        }
+        .form-group label { margin-bottom: 0.5rem; font-size: 1rem; text-align: left; display: block; }
+        .form-group input, .form-group select, .form-group textarea {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: white; border-radius: 8px;
+            padding: 1rem; font-family: 'Poppins', sans-serif; font-size: 1.1rem; width: 100%;
+        }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .checkbox-group { display: flex; align-items: center; gap: 1rem; text-align: left; font-size: 0.9rem; margin-top: 1rem; }
+        .checkbox-group input { width: 1.5em; height: 1.5em; flex-shrink: 0; }
+
+        /* --- Submit & Thank You --- */
+        .submit-btn {
+            background: #3498db; color: white; border: none; padding: 1rem 3rem; font-size: 1.5rem;
+            font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease;
+        }
+        .submit-btn:hover { background: #2980b9; }
+
+        .final-thank-you-screen h2 { font-size: 3rem; letter-spacing: 1.5px; margin-top: 2rem; }
+        .paper-plane-container { position: relative; width: 200px; height: 200px; }
+        .paper-plane-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 3px dashed rgba(255, 255, 255, 0.2); border-radius: 50%; }
+        .paper-plane-container .fa-paper-plane { position: absolute; top: 50%; left: 50%; color: white; font-size: 3em; transform-origin: center center; animation: fly-around 4s linear infinite; }
+        @keyframes fly-around { from { transform: rotate(0deg) translate(-100px) rotate(0deg) scaleX(-1); } to { transform: rotate(360deg) translate(-100px) rotate(360deg) scaleX(-1); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="./GMRlogo.png" alt="GMR Logo" class="header-logo gmr">
+        <img src="./Tynatechlogo.png" alt="Tynatech Logo" class="header-logo">
+    </header>
+    <main class="feedback-container">
+        </main>
+
+    <script>
+        const countryCodes = [
+            { name: 'India', code: '+91' }, { name: 'USA', code: '+1' }, { name: 'UK', code: '+44' },
+            { name: 'Australia', code: '+61' }, { name: 'Canada', code: '+1' }, { name: 'Germany', code: '+49' },
+            { name: 'France', code: '+33' }, { name: 'Japan', code: '+81' }, { name: 'China', code: '+86' },
+            { name: 'Brazil', code: '+55' }, { name: 'South Africa', code: '+27' }, { name: 'UAE', code: '+971' },
+            { name: 'Afghanistan', code: '+93' }, { name: 'Pakistan', code: '+92' }, { name: 'Russia', code: '+7' }
+        ];
+        // Generate HTML for the dropdown options
+        const countryCodeOptions = countryCodes.map(country => 
+            `<option value="${country.code}" ${country.name === 'India' ? 'selected' : ''}>${country.name} (${country.code})</option>`
+        ).join('');
+        // --- HTML TEMPLATES FOR EACH SCREEN ---
+        const templates = {
+            ratingScreen: `
+                <div id="rating-screen">
+                    <h1>Please Rate Your Washroom Experience</h1>
+                    <div class="ratings-container">
+                        <div class="rating-item" data-rating="5"><div class="rating-emoji-circle">😍</div><span class="rating-label">Excellent</span></div>
+                        <div class="rating-item" data-rating="4"><div class="rating-emoji-circle">😊</div><span class="rating-label">Good</span></div>
+                        <div class="rating-item" data-rating="3"><div class="rating-emoji-circle">😐</div><span class="rating-label">Average</span></div>
+                        <div class="rating-item" data-rating="2"><div class="rating-emoji-circle">😕</div><span class="rating-label">Poor</span></div>
+                        <div class="rating-item" data-rating="1"><div class="rating-emoji-circle">😠</div><span class="rating-label">Very Bad</span></div>
+                    </div>
+                </div>`,
+            detailedFeedbackScreen: `
+                <div id="detailed-feedback-screen" class="detailed-screen-wrapper">
+                    <h3>Help us to serve you better.</h3>
+                    <p>Kindly select the reason(s) for your experience.</p>
+                    <div class="feedback-grid">
+                        <div class="feedback-category"><h3>CLEANLINESS</h3><button class="issue-btn">Toilet</button><button class="issue-btn">Washbasins</button><button class="issue-btn">Odour</button><button class="issue-btn">Wet Floor</button><button class="issue-btn">Tiles</button><button class="issue-btn">Dustbins</button><button class="issue-btn">Urinals</button></div>
+                        <div class="feedback-category"><h3>TOILETRIES</h3><button class="issue-btn">Handwash</button><button class="issue-btn">Toilet Paper</button><button class="issue-btn">Hand Dryer</button><button class="issue-btn">Hand Napkins</button></div>
+                        <div class="feedback-category"><h3>STAFF BEHAVIOUR</h3><button class="issue-btn">Impolite Staff</button><button class="issue-btn">Staff Denied Help</button><button class="issue-btn">Demanded Tip</button></div>
+                        <div class="feedback-category"><h3>MAINTENANCE</h3><button class="issue-btn">Leakage</button><button class="issue-btn">Flush Not Working</button><button class="issue-btn">Broken Tap</button><button class="issue-btn">Broken Toilet Seat</button><button class="issue-btn">Broken Tiles</button><button class="issue-btn">Drain Clogged</button><button class="issue-btn">Washroom Closed</button></div>
+                        <div class="feedback-category"><h3>OTHERS</h3><button class="issue-btn">Less No.Of washrooms</button><button class="issue-btn">Proximity</button><button class="issue-btn">Small Washroom</button></div>
+                    </div>
+                    <div class="action-buttons"><button class="back-btn" id="back-btn-issue"><i class="fas fa-arrow-left"></i> Go Back</button><button class="submit-btn" id="submit-detailed-btn">Continue</button></div>
+                </div>`,
+            positiveFeedbackScreen: `
+                <div id="positive-feedback-screen" class="detailed-screen-wrapper">
+                    <h2>Thank you for your feedback!</h2><h3>What did you like the most?</h3>
+                    <div class="positive-options-container">
+                        <button class="positive-btn"><i class="fas fa-soap"></i><span>Cleanliness</span></button>
+                        <button class="positive-btn"><i class="fas fa-pump-soap"></i><span>Toiletries</span></button>
+                        <button class="positive-btn"><i class="fas fa-user-friends"></i><span>Staff Behaviour</span></button>
+                        <button class="positive-btn"><i class="fas fa-tools"></i><span>Maintenance</span></button>
+                        <button class="positive-btn"><i class="fas fa-star"></i><span>Overall Experience</span></button>
+                    </div>
+                    <div class="action-buttons"><button class="back-btn" id="back-btn-positive"><i class="fas fa-arrow-left"></i> Go Back</button><button class="submit-btn" id="submit-positive-btn">Continue</button></div>
+                </div>`,
+            detailsScreen: `
+                <div id="details-screen" class="detailed-screen-wrapper">
+                    <h2>Thank you for your feedback</h2><p>Please provide your details (Optional)</p>
+                    <div class="details-form-grid">
+                        <div class="form-group name"><label for="name">Name</label><input type="text" id="name" autocomplete="off"></div>
+                        <div class="form-group email"><label for="email">Email</label><input type="email" id="email" autocomplete="off"></div>
+                        <div class="form-group gender"><label for="gender">Gender</label><select id="gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+                        <div class="form-group country-code"><label for="country-code">Country Code</label><select id="country-code">${countryCodeOptions}</select></div>
+                        <div class="form-group phone"><label for="phone">Phone Number</label><input type="tel" id="phone" autocomplete="off"></div>
+                        <div class="form-group full-width"><label for="remarks">Remarks</label><textarea id="remarks"></textarea></div>
+                    </div>
+                    <div class="checkbox-group full-width"><input type="checkbox" id="offers"><label for="offers">I would like to receive offers/product/services related news...</label></div>
+                    <div class="checkbox-group full-width"><input type="checkbox" id="terms"><label for="terms">I agree to T&C that my personal data may be collected...</label></div>
+                    <div class="action-buttons"><button class="back-btn" id="back-btn-details"><i class="fas fa-arrow-left"></i> Go Back</button><button class="submit-btn" id="final-submit-btn">Submit</button></div>
+                </div>`,
+            thankYouScreen: `
+                <div id="thank-you-screen" class="final-thank-you-screen">
+                    <div class="paper-plane-container">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <h2>THANK YOU FOR YOUR FEEDBACK</h2>
+                </div>`
+        };
+
+        const container = document.querySelector('.feedback-container');
+        let finalPayload = {};
+        let screenHistory = []; // Array to store navigation history
+
+        function renderScreen(screenName) {
+            container.innerHTML = templates[screenName];
+            attachEventListeners();
+        }
+        
+        // New function to handle "Go Back"
+        function goBack() {
+            if (screenHistory.length > 0) {
+                const previousScreen = screenHistory.pop(); // Get the last screen from history
+                renderScreen(previousScreen);
+            }
+        }
+
+        function collectAndProceed() {
+            const currentScreenId = container.firstElementChild.id;
+            screenHistory.push(currentScreenId); // PUSH current screen to history before moving forward
+
+            if (finalPayload.rating >= 4) {
+                const selectedLikes = [];
+                document.querySelectorAll('.positive-btn.selected').forEach(btn => selectedLikes.push(btn.querySelector('span').textContent));
+                finalPayload.likes = selectedLikes;
+            } else {
+                const selectedIssues = [];
+                document.querySelectorAll('.issue-btn.selected').forEach(btn => selectedIssues.push(btn.textContent));
+                finalPayload.issues = selectedIssues;
+            }
+            renderScreen('detailsScreen');
+        }
+
+        async function finalSubmit() {
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email && !emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            const phoneRegex = /^\d{0,15}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('Phone number can only contain up to 15 digits and no letters.');
+                return;
+            }
+
+            const details = {
+                name: document.getElementById('name').value,
+                email: email,
+                gender: document.getElementById('gender').value,
+                phone: phone ? document.getElementById('country-code').value + phone : '',
+                remarks: document.getElementById('remarks').value,
+                agreedToOffers: document.getElementById('offers').checked,
+                agreedToTerms: document.getElementById('terms').checked,
+            };
+            finalPayload.details = details;
+
+            console.log("Final Payload Submitted:", finalPayload);
+
+            try {
+                const response = await fetch('submit-feedback.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(finalPayload),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Network response was not ok');
+                }
+                
+                screenHistory = []; // Clear history after a successful submission
+                renderScreen('thankYouScreen');
+
+                setTimeout(() => {
+                    renderScreen('ratingScreen');
+                }, 5000);
+
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                alert('There was an error submitting your feedback. Please try again.');
+            }
+        }
+
+        function attachEventListeners() {
+            const screenId = container.firstElementChild.id;
+
+            if (screenId === 'rating-screen') {
+                container.querySelectorAll('.rating-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        screenHistory.push('rating-screen'); // PUSH current screen to history
+                        container.querySelectorAll('.rating-item').forEach(i => i.classList.remove('selected'));
+                        item.classList.add('selected');
+
+                        finalPayload = { rating: parseInt(item.dataset.rating), timestamp: new Date().toISOString() };
+                        
+                        setTimeout(() => {
+                            if (finalPayload.rating <= 3) {
+                                renderScreen('detailedFeedbackScreen');
+                            } else {
+                                renderScreen('positiveFeedbackScreen');
+                            }
+                        }, 300);
+                    });
+                });
+            } else if (screenId === 'detailed-feedback-screen') {
+                container.querySelectorAll('.issue-btn').forEach(btn => btn.addEventListener('click', () => btn.classList.toggle('selected')));
+                document.getElementById('back-btn-issue').addEventListener('click', () => renderScreen('ratingScreen'));
+                document.getElementById('submit-detailed-btn').addEventListener('click', collectAndProceed);
+            } else if (screenId === 'positive-feedback-screen') {
+                container.querySelectorAll('.positive-btn').forEach(btn => btn.addEventListener('click', () => btn.classList.toggle('selected')));
+                document.getElementById('back-btn-positive').addEventListener('click', () => renderScreen('ratingScreen'));
+                document.getElementById('submit-positive-btn').addEventListener('click', collectAndProceed);
+            } else if (screenId === 'details-screen') {
+                document.getElementById('back-btn-details').addEventListener('click', () => renderScreen('ratingScreen'));
+                document.getElementById('final-submit-btn').addEventListener('click', finalSubmit);
+            }
+        }
+
+        renderScreen('ratingScreen');
+    </script>
+</body>
+</html>
